@@ -24,14 +24,14 @@ router.get('/puppy/:id', function(req, res, next){
   if (pup.length>0){
     res.json(pup[0]);
   } else {
-    res.json("Puppy ain't existing here");
+    res.json({message : "Puppy ain't existing here"});
   }
 
 });
 
 router.post('/puppies', function(req, res, next) {
   var pup = tempPuppyArray.filter(function(puppy){
-    return puppy.puppyID===parseInt(req.params.puppyID);
+    return puppy.puppyID===parseInt(req.body.puppyID);
   });
 
    if (pup.length>0){
@@ -48,5 +48,62 @@ router.post('/puppies', function(req, res, next) {
   }
 });
 
+router.put('/puppy/:id', function(req, res, next) {
+  //add validation for checking if the puppyAge is an integer
+
+  if(isNaN(parseInt(req.body.puppyAge))) {
+    res.json({message: "Please enter a number for the puppy's age."});
+    return false;
+  }
+
+  var pup = tempPuppyArray.filter(function(puppy){
+    return puppy.puppyID===+req.params.id;
+  });
+
+  if (pup.length>0){
+
+    for (var i = 0; i < tempPuppyArray.length; i++) {
+       if (tempPuppyArray[i].puppyID === parseInt(req.params.id)) {
+          for (key in req.body) {
+            if (key === 'puppyName') {
+              tempPuppyArray[i].puppyName = req.body.puppyName;
+            } else if (key === 'puppyAge') {
+              tempPuppyArray[i].puppyAge = req.body.puppyAge;
+            }
+        }
+
+      }
+    }
+    res.send(tempPuppyArray);
+    //grab object from array
+    //update specific keys
+    //push back into array
+  } else {
+    res.json("Puppy ain't existing here");
+  }
+
+});
+
+router.delete('/puppy/:id', function(req, res, next) {
+  var pup = tempPuppyArray.filter(function(puppy){
+    return puppy.puppyID===+req.params.id;
+  });
+
+  if (pup.length > 0) {
+    for (var i = 0; i < tempPuppyArray.length; i++) {
+      if (tempPuppyArray[i].puppyID === parseInt(req.params.id)) {
+
+        var tempPuppy = tempPuppyArray.splice(i,1);
+        res.json({
+          message: "That puppy is gone!",
+          puppy: tempPuppy
+        });
+      }
+    }
+  } else {
+    res.json("Puppy ain't existing here");
+  }
+
+});
 
 module.exports = router;
